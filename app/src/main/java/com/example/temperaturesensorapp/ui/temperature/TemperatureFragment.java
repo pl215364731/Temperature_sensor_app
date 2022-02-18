@@ -1,6 +1,5 @@
 package com.example.temperaturesensorapp.ui.temperature;
 
-import android.Manifest;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,13 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.temperaturesensorapp.MainActivity;
 import com.example.temperaturesensorapp.MainActivityViewModel;
-import com.example.temperaturesensorapp.R;
 import com.example.temperaturesensorapp.databinding.FragmentTemperatureBinding;
-import com.example.temperaturesensorapp.ui.scan.ScanFragment;
 
 import java.text.DecimalFormat;
 
@@ -41,20 +36,26 @@ public class TemperatureFragment extends Fragment {
         final TextView textView = binding.temperature;
         final Button unitButton = binding.unitButton;
 
-        if(mainActivityViewModel.getInRange()){
+        if(mainActivityViewModel.getTooFar()){
+            unitButton.setVisibility(View.GONE);
+            textView.setText("Please get closer to the sensor");
+            textView.setTextSize(20);
+        } else if(mainActivityViewModel.getTooClose()){
+            unitButton.setVisibility(View.GONE);
+            textView.setText("Please be at least 1 cm away from the sensor");
+            textView.setTextSize(20);
+        } else if(mainActivityViewModel.getTableLength() == 0){
+            unitButton.setVisibility(View.GONE);
+            textView.setText("Please Scan");
+            textView.setTextSize(20);
+        } else{
             unitButton.setText("°C/°F");
             if(mainActivityViewModel.getUnit() == 'C'){
                 printCelsius();
             } else if(mainActivityViewModel.getUnit() == 'F'){
                 printFahrenheit();
             }
-        } else {
-            unitButton.setVisibility(View.GONE);
-            textView.setText("Please get closer to the sensor");
-            textView.setTextSize(20);
         }
-
-
         return root;
     }
 
@@ -83,7 +84,6 @@ public class TemperatureFragment extends Fragment {
 
     void printCelsius() {
         final TextView textView = binding.temperature;
-        final Button unitButton = binding.unitButton;
         DecimalFormat df=new DecimalFormat("#.#");
         textView.setText(df.format(mainActivityViewModel.getTempC()) + " °C");
         //Color
@@ -98,18 +98,15 @@ public class TemperatureFragment extends Fragment {
 
     void printFahrenheit(){
         final TextView textView = binding.temperature;
-        final Button unitButton = binding.unitButton;
-        if(mainActivityViewModel.getInRange()) {
-            DecimalFormat df = new DecimalFormat("#.#");
-            textView.setText(df.format(mainActivityViewModel.getTempF()) + " °F");
-            //Color
-            if (mainActivityViewModel.getTempF() < 99) {
-                textView.setTextColor(Color.rgb(6, 145, 6));
-            } else if (mainActivityViewModel.getTempF() > 100.4) {
-                textView.setTextColor(Color.rgb(255, 0, 0));
-            } else {
-                textView.setTextColor(Color.rgb(219, 219, 0));
-            }
+        DecimalFormat df = new DecimalFormat("#.#");
+        textView.setText(df.format(mainActivityViewModel.getTempF()) + " °F");
+        //Color
+        if (mainActivityViewModel.getTempF() < 99) {
+            textView.setTextColor(Color.rgb(6, 145, 6));
+        } else if (mainActivityViewModel.getTempF() > 100.4) {
+            textView.setTextColor(Color.rgb(255, 0, 0));
+        } else {
+            textView.setTextColor(Color.rgb(219, 219, 0));
         }
     }
 }

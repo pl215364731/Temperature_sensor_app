@@ -9,20 +9,16 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 
 import androidx.lifecycle.ViewModel;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -46,13 +42,15 @@ public class MainActivityViewModel extends ViewModel {
     private ArrayList<TempData> table;
     private Double tempC;
     private Double tempF;
-    private boolean inRange;
+    private boolean tooFar;
+    private boolean tooClose;
     private Character unit;
 
     public MainActivityViewModel() {
         table = new ArrayList<>();
         unit = 'F';
-        inRange = false;
+        tooFar = false;
+        tooClose = false;
         readings = "";
         result = false;
     }
@@ -63,11 +61,17 @@ public class MainActivityViewModel extends ViewModel {
     public Double getTempF(){
         return tempF;
     }
-    public boolean getInRange(){
-        return inRange;
+    public boolean getTooFar(){
+        return tooFar;
+    }
+    public boolean getTooClose(){
+        return tooClose;
     }
     public Character getUnit(){
         return unit;
+    }
+    public int getTableLength(){
+        return table.size();
     }
 
     public void setUnit(Character c){
@@ -173,9 +177,12 @@ public class MainActivityViewModel extends ViewModel {
             return;
         }
         if(readings.equals("too far")){
-            inRange = false;
+            tooFar = true;
+        } else if (readings.equals("too close")){
+            tooClose = true;
         } else {
-            inRange = true;
+            tooFar = false;
+            tooClose = false;
             System.out.println(readings);
             tempF = Double.valueOf(readings);
             System.out.println(tempF);
